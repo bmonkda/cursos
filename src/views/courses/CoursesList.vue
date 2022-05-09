@@ -34,6 +34,10 @@
 			<router-link :to="{ name: 'CourseDetails', params: { id: course.id } }">
 				{{ course.title }}
 			</router-link>
+			-
+			<button @click="deleteCourse(course.id)">
+				Eliminar
+			</button>
 		</li>
 	</ul>
 </template>
@@ -87,6 +91,16 @@ export default {
 						description: '',
 						category_id: ''
 					}
+				})
+				.catch(error => {
+					console.log(error);
+				});
+		},
+
+		deleteCourse(id){
+			this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
+				.then( () => {
+					this.courses = this.courses.filter(course => course.id != id);
 				})
 				.catch(error => {
 					console.log(error);
