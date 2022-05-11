@@ -5,6 +5,13 @@
         <b>Categoría: </b>
         {{ course.category.name }}
     </p>
+
+    <router-link :to="{ name: 'CourseEdit', params: {
+            id: course.id 
+        } }">
+        Editar curso
+    </router-link>
+
 </template>
 
 <script>
