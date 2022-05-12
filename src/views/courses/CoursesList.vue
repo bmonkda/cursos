@@ -1,6 +1,12 @@
 <template>
 	<h1>Listado de cursos</h1>
 
+<ul v-if="errors.length > 0">
+	<li v-for="error in errors" :key="error.id">
+		{{ error }}
+	</li>
+</ul>
+
 	<form @submit.prevent="saveCourse">
 		<div>
 			<label for="title">Título</label>
@@ -43,71 +49,73 @@
 </template>
 
 <script>
-export default {
-	data() {
-		return {
-			courses: [],
-			categories: [],
-			course: {
-				title: '',
-				description: '',
-				category_id: ''
+	export default {
+		data() {
+			return {
+				courses: [],
+				categories: [],
+				course: {
+					title: '',
+					description: '',
+					category_id: ''
+				},
+				errors:[]
 			}
-		}
-	},
-
-	created() {
-		this.getCourses();
-		this.getCategories();
-	},
-
-	methods: {
-		getCourses() {
-			this.axios.get('https://cursos-prueba.tk/api/courses')
-				.then(response => {
-					this.courses = response.data;
-				})
-				.catch(error => {
-					console.log(error);
-				});
 		},
 
-		getCategories() {
-			this.axios.get('https://cursos-prueba.tk/api/categories')
-				.then(response => {
-					this.categories = response.data;
-				})
-				.catch(error => {
-					console.log(error);
-				});
+		created() {
+			this.getCourses();
+			this.getCategories();
 		},
 
-		saveCourse() {
-			this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
-				.then(response => {
-					this.courses.push(response.data);
-					this.course = {
-						title: '',
-						description: '',
-						category_id: ''
-					}
-				})
-				.catch(error => {
-					console.log(error);
-				});
-		},
+		methods: {
+			getCourses() {
+				this.axios.get('https://cursos-prueba.tk/api/courses')
+					.then(response => {
+						this.courses = response.data;
+					})
+					.catch(error => {
+						console.log(error);
+					});
+			},
 
-		deleteCourse(id){
-			this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
-				.then( () => {
-					this.courses = this.courses.filter(course => course.id != id);
-				})
-				.catch(error => {
-					console.log(error);
-				});
-		}
-	},
-}
+			getCategories() {
+				this.axios.get('https://cursos-prueba.tk/api/categories')
+					.then(response => {
+						this.categories = response.data;
+					})
+					.catch(error => {
+						console.log(error);
+					});
+			},
+
+			saveCourse() {
+				this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
+					.then(response => {
+						this.courses.push(response.data);
+						this.course = {
+							title: '',
+							description: '',
+							category_id: ''
+						}
+						this.errors = []
+					})
+					.catch(error => {
+						this.errors = Object.values(error.response.data.errors).flat();
+					});
+			},
+
+			deleteCourse(id){
+				this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
+					.then( () => {
+						this.courses = this.courses.filter(course => course.id != id);
+					})
+					.catch(error => {
+						console.log(error);
+					});
+			}
+		},
+	}
 </script>
 
 <style>

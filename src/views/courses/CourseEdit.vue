@@ -71,7 +71,6 @@
 					});
 			},
 
-
 			updateCourse() {
 				this.axios.put('https://cursos-prueba.tk/api/courses/' + this.$route.params.id, this.course)
 					.then( () => {
