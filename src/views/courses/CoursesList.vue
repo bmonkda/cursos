@@ -1,123 +1,168 @@
 <template>
-	<h1>Listado de cursos</h1>
+  <h1>Listado de cursos</h1>
 
-<ul v-if="errors.length > 0">
-	<li v-for="error in errors" :key="error.id">
-		{{ error }}
-	</li>
-</ul>
+  <ul v-if="errors.length > 0">
+    <li v-for="error in errors" :key="error.id">
+      {{ error }}
+    </li>
+  </ul>
 
-	<form @submit.prevent="saveCourse">
-		<div>
-			<label for="title">Título</label>
-			<br>
-			<input v-model="course.title" id="title" type="text" placeholder="Ingrese el título del curso">
-		</div>
-		<br>
-		<div>
-			<label for="description">Descripción</label>
-			<br>
-			<textarea v-model="course.description" id="description" placeholder="Ingrese la descripción del curso"></textarea>
-		</div>
-		<br>
-		<div>
-			<!-- {{ categories }} -->
-			<label for="categoria">Categoría</label>
-			<br>
-			<select v-model="course.category_id" name="" id="categoria">
-				<option value="" selected disabled>Seleccione una categoría</option>
-				<option v-for="category in categories" :key=" 'category-' + category.id" :value="category.id">
-					{{ category.name }}
-				</option>
-			</select>
-		</div>
-		<br>
-		<button type="submit">Guardar</button>
-	</form>
+  <form @submit.prevent="saveCourse" class="mb-4">
+    <div class="mb-2">
+      <label for="title">Título</label>
+      <br>
+      <input v-model="course.title" id="title" type="text" placeholder="Ingrese el título del curso">
+    </div>
 
-	<ul>
-		<li v-for="course in courses" :key="'course-' + course.id">
-			<router-link :to="{ name: 'CourseDetails', params: { id: course.id } }">
-				{{ course.title }}
-			</router-link>
-			-
-			<button @click="deleteCourse(course.id)">
-				Eliminar
-			</button>
-		</li>
-	</ul>
+    <div class="mb-2">
+      <label for="description">Descripción</label>
+      <br>
+      <textarea v-model="course.description" id="description" placeholder="Ingrese la descripción del curso"></textarea>
+    </div>
+
+    <div class="mb-2">
+      <!-- {{ categories }} -->
+      <label for="categoria">Categoría</label>
+      <br>
+      <select v-model="course.category_id" name="" id="categoria">
+        <option value="" selected disabled>Seleccione una categoría</option>
+        <option v-for="category in categories" :key="'category-' + category.id" :value="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+  </form>
+  <!-- {{ courses }}  -->
+  <ul>
+    <li v-for="course in courses" :key="'course-' + course.id" class="mb-2">
+      <router-link :to="{ name: 'CourseDetails', params: { id: course.id } }">
+        {{ course.title }}
+      </router-link>
+      -
+      <button @click="deleteCourse(course.id)" class="btn btn-danger btn-sm">
+        Eliminar
+      </button>
+    </li>
+  </ul>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-center">
+      <nav aria-label="...">
+        <ul class="pagination">
+          <li v-for="pagination_link in pagination_links" 
+            :key="'pagination_link-' + pagination_link.label" 
+            class="page-item"
+            :class="{
+              'disabled': pagination_link.url == null,
+              'active': pagination_link.active 
+            }">
+            <a class="page-link" 
+              @click="changePage(pagination_link.url)"
+              v-html="pagination_link.label" 
+              style="cursor: pointer">
+            </a>
+          </li>
+        </ul>
+      </nav>
+  </div>
+
 </template>
 
 <script>
-	export default {
-		data() {
-			return {
-				courses: [],
-				categories: [],
-				course: {
-					title: '',
-					description: '',
-					category_id: ''
-				},
-				errors:[]
-			}
-		},
+export default {
+  data() {
+    return {
+      courses: [],
+      categories: [],
+      course: {
+        title: '',
+        description: '',
+        category_id: '',
+      },
+      errors: [],
+      pagination_links: []
+    }
+  },
 
-		created() {
-			this.getCourses();
-			this.getCategories();
-		},
+  created() {
+    this.getCourses();
+    this.getCategories();
+  },
 
-		methods: {
-			getCourses() {
-				this.axios.get('https://cursos-prueba.tk/api/courses')
-					.then(response => {
-						this.courses = response.data;
-					})
-					.catch(error => {
-						console.log(error);
-					});
-			},
+  computed: {
+    page() {
+      return this.$route.query.page ?? 1
+    }
+  },
 
-			getCategories() {
-				this.axios.get('https://cursos-prueba.tk/api/categories')
-					.then(response => {
-						this.categories = response.data;
-					})
-					.catch(error => {
-						console.log(error);
-					});
-			},
+  watch: {
+    page() {
+      this.getCourses();
+    }
+  },
 
-			saveCourse() {
-				this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
-					.then(response => {
-						this.courses.push(response.data);
-						this.course = {
-							title: '',
-							description: '',
-							category_id: ''
-						}
-						this.errors = []
-					})
-					.catch(error => {
-						this.errors = Object.values(error.response.data.errors).flat();
-					});
-			},
+  methods: {
+    getCourses() {
+      this.axios.get('https://cursos-prueba.tk/api/courses?per_page=10' + '&page=' + this.page)
+        .then(response  => {
+          let res = response.data;
+          this.courses = res.data;
+          // this.courses = response.data.data;
+          this.pagination_links = res.links;
+          // this.courses = response.data.links;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
 
-			deleteCourse(id){
-				this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
-					.then( () => {
-						this.courses = this.courses.filter(course => course.id != id);
-					})
-					.catch(error => {
-						console.log(error);
-					});
-			}
-		},
-	}
+    getCategories() {
+      this.axios.get('https://cursos-prueba.tk/api/categories')
+        .then(response => {
+          this.categories = response.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    saveCourse() {
+      this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
+        .then(response => {
+          this.courses.push(response.data);
+          this.course = {
+            title: '',
+            description: '',
+            category_id: ''
+          }
+          this.errors = [];
+        })
+        .catch(error => {
+          this.errors = Object.values(error.response.data.errors).flat();
+        });
+    },
+
+    deleteCourse(id) {
+      this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
+        .then(() => {
+          this.courses = this.courses.filter((course) => course.id != id);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    changePage(url) {
+      this.$router.replace({
+        query: {
+          page: url.split('page=')[1]
+        }
+      });
+    }
+  },
+};
 </script>
 
-<style>
-
-</style>
+<style></style>
