@@ -1,73 +1,82 @@
 <template>
-  <h1>Listado de cursos</h1>
+  <div class="container">
+    <h1>Listado de cursos</h1>
 
-  <ul v-if="errors.length > 0">
-    <li v-for="error in errors" :key="error.id">
-      {{ error }}
-    </li>
-  </ul>
+    <ul v-if="errors.length > 0">
+      <li v-for="error in errors" :key="error.id">
+        {{ error }}
+      </li>
+    </ul>
 
-  <form @submit.prevent="saveCourse" class="mb-4">
-    <div class="mb-2">
-      <label for="title">Título</label>
-      <br>
-      <input v-model="course.title" id="title" type="text" placeholder="Ingrese el título del curso">
+    <div class="card mb-4">
+      <form @submit.prevent="saveCourse" class="card-body">
+        <div class="mb-2">
+          <label for="title">Título</label>
+          <br>
+          <input class="form-control" v-model="course.title" id="title" type="text" placeholder="Ingrese el título del curso">
+        </div>
+
+        <div class="mb-2">
+          <label for="description">Descripción</label>
+          <br>
+          <textarea class="form-control" v-model="course.description" id="description" placeholder="Ingrese la descripción del curso"></textarea>
+        </div>
+
+        <div class="mb-2">
+          <!-- {{ categories }} -->
+          <label for="categoria">Categoría</label>
+          <br>
+          <select class="form-control" v-model="course.category_id" name="" id="categoria">
+            <option value="" selected disabled>Seleccione una categoría</option>
+            <option v-for="category in categories" :key="'category-' + category.id" :value="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+      </form>
     </div>
 
-    <div class="mb-2">
-      <label for="description">Descripción</label>
-      <br>
-      <textarea v-model="course.description" id="description" placeholder="Ingrese la descripción del curso"></textarea>
+    <div class="mb-4">
+      <h2>Buscador</h2>
+      <input v-model="search" type="text" placeholder="Ingrese una palabra para filtrar" class="form-control">
     </div>
 
-    <div class="mb-2">
-      <!-- {{ categories }} -->
-      <label for="categoria">Categoría</label>
-      <br>
-      <select v-model="course.category_id" name="" id="categoria">
-        <option value="" selected disabled>Seleccione una categoría</option>
-        <option v-for="category in categories" :key="'category-' + category.id" :value="category.id">
-          {{ category.name }}
-        </option>
-      </select>
+    <!-- {{ courses }}  -->
+    <ul>
+      <li v-for="course in courses" :key="'course-' + course.id" class="mb-2">
+        <router-link :to="{ name: 'CourseDetails', params: { id: course.id } }">
+          {{ course.title }}
+        </router-link>
+        -
+        <button @click="deleteCourse(course.id)" class="btn btn-danger btn-sm">
+          Eliminar
+        </button>
+      </li>
+    </ul>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        <nav aria-label="...">
+          <ul class="pagination">
+            <li v-for="pagination_link in pagination.links" 
+              :key="'pagination_link-' + pagination_link.label" 
+              class="page-item"
+              :class="{
+                'disabled': pagination_link.url == null,
+                'active': pagination_link.active 
+              }">
+              <a class="page-link" 
+                @click="changePage(pagination_link.url)"
+                v-html="pagination_link.label" 
+                style="cursor: pointer">
+              </a>
+            </li>
+          </ul>
+        </nav>
     </div>
-
-    <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
-  </form>
-  <!-- {{ courses }}  -->
-  <ul>
-    <li v-for="course in courses" :key="'course-' + course.id" class="mb-2">
-      <router-link :to="{ name: 'CourseDetails', params: { id: course.id } }">
-        {{ course.title }}
-      </router-link>
-      -
-      <button @click="deleteCourse(course.id)" class="btn btn-danger btn-sm">
-        Eliminar
-      </button>
-    </li>
-  </ul>
-
-  <!-- Pagination -->
-  <div class="d-flex justify-content-center">
-      <nav aria-label="...">
-        <ul class="pagination">
-          <li v-for="pagination_link in pagination.links" 
-            :key="'pagination_link-' + pagination_link.label" 
-            class="page-item"
-            :class="{
-              'disabled': pagination_link.url == null,
-              'active': pagination_link.active 
-            }">
-            <a class="page-link" 
-              @click="changePage(pagination_link.url)"
-              v-html="pagination_link.label" 
-              style="cursor: pointer">
-            </a>
-          </li>
-        </ul>
-      </nav>
   </div>
-
 </template>
 
 <script>
@@ -82,7 +91,8 @@ export default {
         category_id: '',
       },
       errors: [],
-      pagination: {}
+      pagination: {},
+      search: 'cu',
     }
   },
 
@@ -111,12 +121,17 @@ export default {
   watch: {
     page() {
       this.getCourses();
+    },
+
+    search() {
+      this.getCourses()
     }
+
   },
 
   methods: {
     getCourses() {
-      this.axios.get('https://cursos-prueba.tk/api/courses?sort=id&per_page=10&page=' + this.page)
+      this.axios.get('https://cursos-prueba.tk/api/courses?sort=id&per_page=10&page=' + this.page + '&filter[title]=' + this.search)
         .then(response  => {
           let res = response.data;
           this.courses = res.data;
