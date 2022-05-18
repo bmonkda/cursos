@@ -51,7 +51,7 @@
   <div class="d-flex justify-content-center">
       <nav aria-label="...">
         <ul class="pagination">
-          <li v-for="pagination_link in pagination_links" 
+          <li v-for="pagination_link in pagination.links" 
             :key="'pagination_link-' + pagination_link.label" 
             class="page-item"
             :class="{
@@ -82,7 +82,7 @@ export default {
         category_id: '',
       },
       errors: [],
-      pagination_links: []
+      pagination: {}
     }
   },
 
@@ -93,7 +93,18 @@ export default {
 
   computed: {
     page() {
-      return this.$route.query.page ?? 1
+      let page = this.$route.query.page ?? 1
+
+      if (page > this.pagination.last_page) {
+
+        this.$router.replace({
+            query: {
+              page : this.pagination.last_page
+            }
+          })
+      }
+
+      return page
     }
   },
 
@@ -105,13 +116,16 @@ export default {
 
   methods: {
     getCourses() {
-      this.axios.get('https://cursos-prueba.tk/api/courses?per_page=10' + '&page=' + this.page)
+      this.axios.get('https://cursos-prueba.tk/api/courses?sort=id&per_page=10&page=' + this.page)
         .then(response  => {
           let res = response.data;
           this.courses = res.data;
           // this.courses = response.data.data;
-          this.pagination_links = res.links;
-          // this.courses = response.data.links;
+
+          this.pagination = {
+            links: res.links,
+            last_page: res.last_page,
+          };
         })
         .catch(error => {
           console.log(error);
@@ -130,8 +144,10 @@ export default {
 
     saveCourse() {
       this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
-        .then(response => {
-          this.courses.push(response.data);
+        .then( () => {
+          // this.courses.push(response.data);
+
+          this.getCourses()
           this.course = {
             title: '',
             description: '',
@@ -146,8 +162,9 @@ export default {
 
     deleteCourse(id) {
       this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
-        .then(() => {
-          this.courses = this.courses.filter((course) => course.id != id);
+        .then( () => {
+        //   this.courses = this.courses.filter((course) => course.id != id);
+        this.getCourses();
         })
         .catch(error => {
           console.log(error);
