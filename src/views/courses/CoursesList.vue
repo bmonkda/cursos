@@ -92,7 +92,7 @@ export default {
       },
       errors: [],
       pagination: {},
-      search: 'cu',
+      search: '',
     }
   },
 
@@ -131,7 +131,15 @@ export default {
 
   methods: {
     getCourses() {
-      this.axios.get('https://cursos-prueba.tk/api/courses?sort=id&per_page=10&page=' + this.page + '&filter[title]=' + this.search)
+      /* this.axios.get('https://cursos-prueba.tk/api/courses?sort=-id&per_page=10&page=' + this.page + '&filter[title]=' + this.search) */
+      this.axios.get('https://cursos-prueba.tk/api/courses',{
+        params: {
+          sort: '-id',
+          per_page: 10,
+          page: this.page,
+          'filter[title]': this.search,
+        }
+      })
         .then(response  => {
           let res = response.data;
           this.courses = res.data;
