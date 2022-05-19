@@ -80,7 +80,58 @@
 </template>
 
 <script>
+
+import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 export default {
+
+  setup() {
+    const pagination = ref({});
+    const route = useRoute();
+    const router = useRouter();
+
+    // Propiedades computadas
+    const page = computed( () => {
+      let page = route.query.page ?? 1
+      
+      if (page > pagination.value.last_page) {
+
+        router.replace({
+            query: {
+              page : pagination.value.last_page
+            }
+          })
+      }
+
+      return page
+
+    })
+
+    // Métodos
+    const setPagination = (response) => {
+      pagination.value = {
+        links: response.links,
+        last_page: response.last_page
+      }
+    }
+
+    const changePage = (url) => {
+      router.replace({
+        query: {
+          page: url.split('page=')[1]
+        }
+      });
+    }
+    
+    return{
+      pagination,
+      page,
+      setPagination,
+      changePage
+    }
+  },
+
   data() {
     return {
       courses: [],
@@ -91,7 +142,6 @@ export default {
         category_id: '',
       },
       errors: [],
-      pagination: {},
       search: '',
     }
   },
@@ -99,23 +149,6 @@ export default {
   created() {
     this.getCourses();
     this.getCategories();
-  },
-
-  computed: {
-    page() {
-      let page = this.$route.query.page ?? 1
-
-      if (page > this.pagination.last_page) {
-
-        this.$router.replace({
-            query: {
-              page : this.pagination.last_page
-            }
-          })
-      }
-
-      return page
-    }
   },
 
   watch: {
@@ -145,10 +178,7 @@ export default {
           this.courses = res.data;
           // this.courses = response.data.data;
 
-          this.pagination = {
-            links: res.links,
-            last_page: res.last_page,
-          };
+          this.setPagination(res)
         })
         .catch(error => {
           console.log(error);
@@ -193,16 +223,8 @@ export default {
           console.log(error);
         });
     },
-
-    changePage(url) {
-      this.$router.replace({
-        query: {
-          page: url.split('page=')[1]
-        }
-      });
-    }
-  },
-};
+  }
+}
 </script>
 
 <style></style>
