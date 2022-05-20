@@ -126,9 +126,20 @@ export default {
   },
 
   methods: {
+    
+    getCategories() {
+      this.axios.get('/api/categories')
+        .then(response => {
+          this.categories = response.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
     getCourses() {
       /* this.axios.get('https://cursos-prueba.tk/api/courses?sort=-id&per_page=10&page=' + this.page + '&filter[title]=' + this.search) */
-      this.axios.get('https://cursos-prueba.tk/api/courses',{
+      this.axios.get('/api/courses',{
         params: {
           sort: '-id',
           per_page: 10,
@@ -148,18 +159,8 @@ export default {
         });
     },
 
-    getCategories() {
-      this.axios.get('https://cursos-prueba.tk/api/categories')
-        .then(response => {
-          this.categories = response.data;
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    },
-
     saveCourse() {
-      this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
+      this.axios.post('/api/courses', this.course)
         .then( () => {
           // this.courses.push(response.data);
 
@@ -177,7 +178,7 @@ export default {
     },
 
     deleteCourse(id) {
-      this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
+      this.axios.delete('/api/courses/' + id)
         .then( () => {
         //   this.courses = this.courses.filter((course) => course.id != id);
         this.getCourses();
@@ -187,7 +188,10 @@ export default {
         });
     },
   }
+  
 }
 </script>
 
-<style></style>
+<style>
+
+</style>
