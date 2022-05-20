@@ -2,6 +2,9 @@
 
 	<div class="container">
 		<h1>Login</h1>
+
+		{{ auth }}
+
 		<div class="card mx-auto">
 			<div class="card-body">
 
@@ -22,7 +25,7 @@
 						Iniciar sesión
 					</button>
 				</form>
-				
+
 			</div>
 		</div>
 	</div>
@@ -30,6 +33,9 @@
 </template>
 
 <script>
+
+	import { mapMutations, mapState } from 'vuex'
+
 	export default {
 		data() {
 			return {
@@ -39,7 +45,16 @@
 			}
 		},
 
+		computed: {
+			...mapState([
+				'auth'
+			])
+		},
+
 		methods: {
+
+			...mapMutations(['setAuth']),
+
 			login() {
 
 				this.disabled = true
@@ -52,6 +67,7 @@
 					password: this.password
 				}).then(response => {
 					console.log(response.data);
+					this.setAuth(response.data)
 					this.disabled = false
 				})
 			}
