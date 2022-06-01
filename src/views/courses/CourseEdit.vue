@@ -44,6 +44,8 @@
 </template>
 
 <script>
+
+  import { mapState } from 'vuex'
   export default {
 
   data() {
@@ -51,7 +53,12 @@
       course: {},
       categories: [],
       errors: [],
+      user: {}
     }
+  },
+
+  computed: {
+    ...mapState(['auth'])
   },
 
   created() {
@@ -72,9 +79,15 @@
     },
 
     getCourse() {
-      this.axios.get('/courses/' + this.$route.params.id + '?included=category') 
+      this.axios.get('/courses/' + this.$route.params.id + '?included=category,user') 
         .then(response => {
           this.course = response.data;
+          this.user = response.data.user;
+          
+          if (this.user.id != this.auth.user.id) {
+            this.$router.push('/courses')
+          }
+
         })
         .catch(error => {
           console.log(error);

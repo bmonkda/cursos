@@ -24,6 +24,9 @@ const routes = [
         path: "/courses/:id/edit",
         name: "CourseEdit",
         component: () => import("@/views/courses/CourseEdit.vue"),
+        meta: {
+            requiresAuth: true
+        }
     },
     
     {

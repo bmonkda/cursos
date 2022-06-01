@@ -12,15 +12,20 @@
         {{ user.name }}
     </p>
 
-    <router-link :to="{ name: 'CourseEdit', params: {
-            id: $route.params.id
-        } }">
-        Editar curso
-    </router-link>
+    <div v-if="auth && user.id == auth.user.id">
+        <router-link :to="{ name: 'CourseEdit', params: {
+                id: $route.params.id
+            } }">
+            Editar curso
+        </router-link>
+    </div>
 
 </template>
 
 <script>
+
+import { mapState } from 'vuex'
+
 export default {
 
     data() {
@@ -29,6 +34,10 @@ export default {
             category: {},
             user: {}
         }
+    },
+
+    computed: {
+        ...mapState(['auth'])
     },
     
     created() {

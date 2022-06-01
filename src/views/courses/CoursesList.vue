@@ -8,7 +8,7 @@
       </li>
     </ul>
 
-    <div class="card mb-4">
+    <div v-if="auth" class="card mb-4">
       <form @submit.prevent="saveCourse" class="card-body">
         <div class="mb-2">
           <label for="title">Título</label>
@@ -50,7 +50,7 @@
           {{ course.title }}
         </router-link>
         -
-        <button @click="deleteCourse(course.id)" class="btn btn-danger btn-sm">
+        <button v-if="auth && course.user.id == auth.user.id" @click="deleteCourse(course.id)" class="btn btn-danger btn-sm">
           Eliminar
         </button>
       </li>
@@ -82,6 +82,9 @@
 <script>
 
 import usePagination from '../../composables/usePagination.js'
+
+import { mapState } from 'vuex'
+
 export default {
 
   setup() {
@@ -107,6 +110,10 @@ export default {
       errors: [],
       search: '',
     }
+  },
+
+  computed: {
+    ...mapState(['auth'])
   },
 
   created() {
@@ -141,6 +148,7 @@ export default {
       /* this.axios.get('https://cursos-prueba.tk/api/courses?sort=-id&per_page=10&page=' + this.page + '&filter[title]=' + this.search) */
       this.axios.get('/courses',{
         params: {
+          included: 'user',
           sort: '-id',
           per_page: 10,
           page: this.page,
@@ -176,7 +184,6 @@ export default {
         })
         .catch(error => {
           console.log(error.response.data);
-          // comentado para la v2; tampoco está this.errors = []
           this.errors = Object.values(error.response.data.errors).flat();
         });
     },
