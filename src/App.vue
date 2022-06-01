@@ -1,17 +1,47 @@
 <template>
-  <nav class="navigation">
+  <div class="navigation">
     <router-link to="/">Home</router-link> |
     <router-link :to="{name: 'CoursesList'}">Cursos</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
+    <router-link to="/about">About</router-link> |
+    <router-link :to="{name: 'Dashboard'}">Dashboard</router-link>
+  </div>
+
+  <div v-if="auth" class="mb-3">
+    <button class="btn btn-danger">Cerrar sesión</button>
+  </div>
   
-  <nav class="navigation">
+  <div v-else class="navigation">
     <router-link :to="{name: 'Login'}">Login</router-link> |
     <router-link :to="{name: 'Register'}">Register</router-link>
-  </nav>
+  </div>
 
   <router-view/>
 </template>
+
+<script>
+
+import { mapState, mapActions } from 'vuex'
+
+export default {
+
+  created () {
+    this.setAuth()
+  },
+
+  computed: {
+    ...mapState([
+      'auth'
+    ])
+  },
+
+  methods: {
+    ...mapActions([
+      'setAuth'
+    ])
+  },
+  
+}
+</script>
 
 <style>
 #app {

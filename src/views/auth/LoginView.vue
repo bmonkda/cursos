@@ -66,9 +66,14 @@
 					username: this.email,
 					password: this.password
 				}).then(response => {
-					console.log(response.data);
+					/* console.log(response.data); */
+					localStorage.setItem('auth', JSON.stringify(response.data))
 					this.setAuth(response.data)
 					this.disabled = false
+
+					this.$router.push({
+						name: 'Dashboard'
+					})
 				})
 			}
 		}
