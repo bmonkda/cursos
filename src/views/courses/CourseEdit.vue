@@ -62,7 +62,7 @@
   methods: {
 
     getCategories() {
-      this.axios.get('/api/categories')
+      this.axios.get('/categories')
         .then(response => {
           this.categories = response.data;
         })
@@ -72,7 +72,7 @@
     },
 
     getCourse() {
-      this.axios.get('/api/courses/' + this.$route.params.id + '?included=category') 
+      this.axios.get('/courses/' + this.$route.params.id + '?included=category') 
         .then(response => {
           this.course = response.data;
         })
@@ -82,7 +82,7 @@
     },
 
     updateCourse() {
-      this.axios.put('/api/courses/' + this.$route.params.id, this.course)
+      this.axios.put('/courses/' + this.$route.params.id, this.course)
         .then( () => {
           this.$router.push({ name: 'CourseDetails', params: { id: this.$route.params.id } });
         })

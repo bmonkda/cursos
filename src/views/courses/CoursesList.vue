@@ -128,7 +128,7 @@ export default {
   methods: {
     
     getCategories() {
-      this.axios.get('/api/categories')
+      this.axios.get('/categories')
         .then(response => {
           this.categories = response.data;
         })
@@ -139,7 +139,7 @@ export default {
 
     getCourses() {
       /* this.axios.get('https://cursos-prueba.tk/api/courses?sort=-id&per_page=10&page=' + this.page + '&filter[title]=' + this.search) */
-      this.axios.get('/api/courses',{
+      this.axios.get('/courses',{
         params: {
           sort: '-id',
           per_page: 10,
@@ -160,25 +160,29 @@ export default {
     },
 
     saveCourse() {
-      this.axios.post('/api/courses', this.course)
+      this.axios.post('/courses', this.course)
         .then( () => {
           // this.courses.push(response.data);
 
           this.getCourses()
+
           this.course = {
             title: '',
             description: '',
             category_id: ''
           }
+
           this.errors = [];
         })
         .catch(error => {
+          console.log(error.response.data);
+          // comentado para la v2; tampoco está this.errors = []
           this.errors = Object.values(error.response.data.errors).flat();
         });
     },
 
     deleteCourse(id) {
-      this.axios.delete('/api/courses/' + id)
+      this.axios.delete('/courses/' + id)
         .then( () => {
         //   this.courses = this.courses.filter((course) => course.id != id);
         this.getCourses();

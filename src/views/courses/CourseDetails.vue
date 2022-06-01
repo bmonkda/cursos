@@ -7,6 +7,11 @@
         {{ category.name }}
     </p>
 
+    <p>
+        <b>Autor: </b>
+        {{ user.name }}
+    </p>
+
     <router-link :to="{ name: 'CourseEdit', params: {
             id: $route.params.id
         } }">
@@ -21,7 +26,8 @@ export default {
     data() {
         return {
             course: {},
-            category: {}
+            category: {},
+            user: {}
         }
     },
     
@@ -31,10 +37,11 @@ export default {
 
     methods: {
         getCourse() {
-            this.axios.get('/api/courses/' + this.$route.params.id + '?included=category') 
+            this.axios.get('/courses/' + this.$route.params.id + '?included=category,user') 
                 .then(response => {
                     this.course = response.data
                     this.category = response.data.category
+                    this.user = response.data.user
                 })
                 .catch(error => {
                     console.log(error)
