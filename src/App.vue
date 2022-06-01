@@ -7,7 +7,7 @@
   </div>
 
   <div v-if="auth" class="mb-3">
-    <button class="btn btn-danger">Cerrar sesión</button>
+    <button class="btn btn-danger"  @click="logout">Cerrar sesión</button>
   </div>
   
   <div v-else class="navigation">
@@ -36,7 +36,8 @@ export default {
 
   methods: {
     ...mapActions([
-      'setAuth'
+      'setAuth',
+      'logout'
     ])
   },
   
